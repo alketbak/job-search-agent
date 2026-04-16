@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JobRadar — Knowledge Graph</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131a33;
+      --panel-2: #1b2447;
+      --text: #e6ebff;
+      --muted: #8a93b8;
+      --border: #243067;
+      --accent: #6ea8ff;
+      --company: #4f8cff;
+      --role: #b48aff;
+      --skill: #40d39c;
+      --application: #ffb054;
+      --gap: #ff6b8a;
+      --run: #ffe066;
+      --location: #7fe0d6;
+      --unknown: #8a93b8;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: radial-gradient(ellipse at top, #131a33 0%, #0b1020 80%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: rgba(19, 26, 51, 0.9);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(6px);
+      z-index: 10;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+    }
+    header h1 .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 8px;
+      box-shadow: 0 0 8px var(--accent);
+    }
+    header .subtitle { color: var(--muted); font-size: 12px; margin-left: 6px; }
+    main { position: relative; height: calc(100vh - 48px); width: 100vw; }
+    svg { display: block; width: 100%; height: 100%; cursor: grab; }
+    svg:active { cursor: grabbing; }
+    .controls {
+      position: absolute;
+      top: 12px; left: 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      width: 280px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .controls label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+    }
+    .controls input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    .controls input[type="text"]:focus { border-color: var(--accent); }
+    .filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .filter-btn {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .filter-btn[data-on="false"] { opacity: 0.35; }
+    .filter-btn .swatch {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .stats {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+      line-height: 1.5;
+    }
+    .stats b { color: var(--text); font-weight: 600; }
+    .legend {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 12px;
+    }
+    .legend ul { list-style: none; margin: 0; padding: 0; }
+    .legend li { display: flex; align-items: center; margin: 4px 0; }
+    .legend .swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(19, 26, 51, 0.98);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      max-width: 340px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      opacity: 0;
+      transition: opacity 120ms ease;
+      z-index: 20;
+    }
+    .tooltip .t-title {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+    .tooltip .t-type {
+      display: inline-block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      color: #0b1020;
+    }
+    .tooltip .t-obs {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    .tooltip .t-obs li { margin: 2px 0; }
+    .empty {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 420px;
+    }
+    .empty code {
+      background: var(--panel-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+    .link {
+      stroke: #3a4887;
+      stroke-opacity: 0.55;
+    }
+    .link.dim { stroke-opacity: 0.08; }
+    .node-group text {
+      fill: var(--text);
+      font-size: 10px;
+      pointer-events: none;
+      text-shadow: 0 0 3px #0b1020, 0 0 3px #0b1020;
+    }
+    .node-group.dim { opacity: 0.18; }
+    .node-group.hit circle { stroke: #fff; stroke-width: 2px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><span class="dot"></span>JobRadar <span class="subtitle">— Knowledge Graph</span></h1>
+    <span id="last-refresh" class="subtitle">loading…</span>
+  </header>
+  <main>
+    <div class="controls">
+      <label for="search">Search nodes</label>
+      <input id="search" type="text" placeholder="company, skill, role…" autocomplete="off" />
+      <label>Filter by type</label>
+      <div class="filters" id="filters"></div>
+      <div class="stats" id="stats">Loading graph…</div>
+    </div>
+    <div class="legend">
+      <ul id="legend-list"></ul>
+    </div>
+    <svg id="graph"></svg>
+    <div id="tooltip" class="tooltip"></div>
+    <div id="empty" class="empty" style="display:none">
+      <p>The knowledge graph is empty.</p>
+      <p>Trigger a pipeline run: <br/><code>POST /run</code></p>
+    </div>
+  </main>
+
+<script>
+(() => {
+  const TYPE_COLORS = {
+    Company: getCSS("--company"),
+    Role: getCSS("--role"),
+    Skill: getCSS("--skill"),
+    Application: getCSS("--application"),
+    SkillGap: getCSS("--gap"),
+    PipelineRun: getCSS("--run"),
+    Location: getCSS("--location"),
+    Unknown: getCSS("--unknown"),
+  };
+  function getCSS(v) {
+    return getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  }
+  function colorFor(t) { return TYPE_COLORS[t] || TYPE_COLORS.Unknown; }
+
+  const svg = d3.select("#graph");
+  const tooltip = d3.select("#tooltip");
+  let width = window.innerWidth, height = window.innerHeight - 48;
+  svg.attr("viewBox", [0, 0, width, height]);
+
+  const container = svg.append("g").attr("class", "zoom-root");
+  svg.call(
+    d3.zoom()
+      .scaleExtent([0.15, 6])
+      .on("zoom", (e) => container.attr("transform", e.transform))
+  );
+
+  const linksG = container.append("g").attr("class", "links");
+  const nodesG = container.append("g").attr("class", "nodes");
+
+  let simulation = null;
+  let currentData = { nodes: [], links: [] };
+  let enabledTypes = new Set();
+
+  const REFRESH_MS = 5 * 60 * 1000;
+
+  async function loadGraph() {
+    try {
+      const res = await fetch("/graph", { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      currentData = data;
+      renderLegend(data);
+      renderFilters(data);
+      renderGraph(data);
+      renderStats(data);
+      document.getElementById("last-refresh").textContent =
+        "updated " + new Date().toLocaleTimeString();
+    } catch (e) {
+      console.error("Failed to load /graph:", e);
+      document.getElementById("stats").innerHTML =
+        `<span style="color:#ff6b8a">Failed to load graph: ${e.message}</span>`;
+    }
+  }
+
+  function computeDegree(data) {
+    const deg = new Map();
+    for (const n of data.nodes) deg.set(n.id, 0);
+    for (const l of data.links) {
+      deg.set(l.source, (deg.get(l.source) || 0) + 1);
+      deg.set(l.target, (deg.get(l.target) || 0) + 1);
+    }
+    return deg;
+  }
+
+  function renderGraph(data) {
+    const empty = document.getElementById("empty");
+    empty.style.display = data.nodes.length === 0 ? "block" : "none";
+
+    const deg = computeDegree(data);
+    // Copy links so d3 can mutate source/target into node refs without
+    // clobbering our /graph data between renders.
+    const links = data.links.map((d) => ({ ...d }));
+    const nodes = data.nodes.map((d) => ({ ...d, degree: deg.get(d.id) || 0 }));
+
+    linksG.selectAll("*").remove();
+    nodesG.selectAll("*").remove();
+
+    const link = linksG
+      .selectAll("line")
+      .data(links)
+      .join("line")
+      .attr("class", "link")
+      .attr("stroke-width", 1);
+
+    const node = nodesG
+      .selectAll("g")
+      .data(nodes, (d) => d.id)
+      .join("g")
+      .attr("class", "node-group")
+      .attr("data-type", (d) => d.type)
+      .call(
+        d3
+          .drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended)
+      )
+      .on("mouseover", (event, d) => showTooltip(event, d))
+      .on("mousemove", moveTooltip)
+      .on("mouseout", hideTooltip)
+      .on("click", (event, d) => highlightConnected(d.id));
+
+    node
+      .append("circle")
+      .attr("r", (d) => 6 + Math.min(14, Math.sqrt(d.degree) * 2.2))
+      .attr("fill", (d) => colorFor(d.type))
+      .attr("stroke", "#0b1020")
+      .attr("stroke-width", 1.2);
+
+    node
+      .append("text")
+      .text((d) => truncate(d.name, 28))
+      .attr("x", 10)
+      .attr("y", 4);
+
+    if (simulation) simulation.stop();
+    simulation = d3
+      .forceSimulation(nodes)
+      .force(
+        "link",
+        d3.forceLink(links).id((d) => d.id).distance(70).strength(0.4)
+      )
+      .force("charge", d3.forceManyBody().strength(-180))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("collide", d3.forceCollide().radius(22))
+      .on("tick", () => {
+        link
+          .attr("x1", (d) => d.source.x)
+          .attr("y1", (d) => d.source.y)
+          .attr("x2", (d) => d.target.x)
+          .attr("y2", (d) => d.target.y);
+        node.attr("transform", (d) => `translate(${d.x},${d.y})`);
+      });
+
+    applyFilter();
+  }
+
+  function truncate(s, n) { return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+
+  function showTooltip(event, d) {
+    const obs = (d.observations || []).slice(0, 10);
+    const obsHTML = obs.length
+      ? `<ul class="t-obs">${obs.map((o) => `<li>• ${escapeHTML(o)}</li>`).join("")}</ul>`
+      : "";
+    tooltip
+      .html(
+        `<div class="t-title">${escapeHTML(d.name)}</div>
+         <span class="t-type" style="background:${colorFor(d.type)}">${escapeHTML(d.type)}</span>
+         ${obsHTML}`
+      )
+      .style("opacity", 1);
+    moveTooltip(event);
+  }
+  function moveTooltip(event) {
+    const pad = 14;
+    tooltip
+      .style("left", event.clientX + pad + "px")
+      .style("top", event.clientY + pad + "px");
+  }
+  function hideTooltip() { tooltip.style("opacity", 0); }
+  function escapeHTML(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function highlightConnected(id) {
+    const neighbors = new Set([id]);
+    for (const l of currentData.links) {
+      const s = typeof l.source === "object" ? l.source.id : l.source;
+      const t = typeof l.target === "object" ? l.target.id : l.target;
+      if (s === id) neighbors.add(t);
+      if (t === id) neighbors.add(s);
+    }
+    nodesG.selectAll(".node-group").classed("dim", (d) => !neighbors.has(d.id));
+    nodesG.selectAll(".node-group").classed("hit", (d) => d.id === id);
+    linksG.selectAll(".link").classed("dim", (d) => {
+      const s = typeof d.source === "object" ? d.source.id : d.source;
+      const t = typeof d.target === "object" ? d.target.id : d.target;
+      return !(neighbors.has(s) && neighbors.has(t));
+    });
+  }
+
+  // ------- drag -------
+  function dragstarted(event, d) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x; d.fy = d.y;
+  }
+  function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
+  function dragended(event, d) {
+    if (!event.active) simulation.alphaTarget(0);
+    d.fx = null; d.fy = null;
+  }
+
+  // ------- search -------
+  document.getElementById("search").addEventListener("input", (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    if (!q) {
+      nodesG.selectAll(".node-group").classed("dim", false).classed("hit", false);
+      linksG.selectAll(".link").classed("dim", false);
+      return;
+    }
+    nodesG.selectAll(".node-group").each(function (d) {
+      const hit = d.name.toLowerCase().includes(q) || d.type.toLowerCase().includes(q);
+      d3.select(this).classed("hit", hit).classed("dim", !hit);
+    });
+  });
+
+  // ------- filters -------
+  function renderFilters(data) {
+    const types = Array.from(new Set(data.nodes.map((n) => n.type))).sort();
+    if (!enabledTypes.size) enabledTypes = new Set(types);
+    const host = document.getElementById("filters");
+    host.innerHTML = "";
+    for (const t of types) {
+      const btn = document.createElement("div");
+      btn.className = "filter-btn";
+      btn.dataset.on = enabledTypes.has(t) ? "true" : "false";
+      btn.innerHTML = `<span class="swatch" style="background:${colorFor(t)}"></span>${t}`;
+      btn.addEventListener("click", () => {
+        if (enabledTypes.has(t)) enabledTypes.delete(t);
+        else enabledTypes.add(t);
+        btn.dataset.on = enabledTypes.has(t) ? "true" : "false";
+        applyFilter();
+      });
+      host.appendChild(btn);
+    }
+  }
+  function applyFilter() {
+    nodesG.selectAll(".node-group").style("display", (d) =>
+      enabledTypes.has(d.type) ? null : "none"
+    );
+    linksG.selectAll(".link").style("display", (d) => {
+      const s = typeof d.source === "object" ? d.source : null;
+      const t = typeof d.target === "object" ? d.target : null;
+      if (!s || !t) return null;
+      return enabledTypes.has(s.type) && enabledTypes.has(t.type) ? null : "none";
+    });
+  }
+
+  // ------- legend + stats -------
+  function renderLegend(data) {
+    const types = Array.from(new Set(data.nodes.map((n) => n.type))).sort();
+    const host = document.getElementById("legend-list");
+    host.innerHTML = "";
+    for (const t of types) {
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="swatch" style="background:${colorFor(t)}"></span>${t}`;
+      host.appendChild(li);
+    }
+  }
+  function renderStats(data) {
+    const counts = {};
+    for (const n of data.nodes) counts[n.type] = (counts[n.type] || 0) + 1;
+    const parts = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => `<b>${v}</b> ${k}`)
+      .join(" · ");
+    document.getElementById("stats").innerHTML =
+      `<div><b>${data.nodes.length}</b> nodes · <b>${data.links.length}</b> edges</div>
+       <div>${parts || "—"}</div>`;
+  }
+
+  // ------- resize -------
+  window.addEventListener("resize", () => {
+    width = window.innerWidth;
+    height = window.innerHeight - 48;
+    svg.attr("viewBox", [0, 0, width, height]);
+    if (simulation) {
+      simulation.force("center", d3.forceCenter(width / 2, height / 2));
+      simulation.alpha(0.3).restart();
+    }
+  });
+
+  // ------- boot + refresh -------
+  loadGraph();
+  setInterval(loadGraph, REFRESH_MS);
+})();
+</script>
+</body>
+</html>

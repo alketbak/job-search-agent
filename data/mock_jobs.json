@@ -1,0 +1,162 @@
+[
+  {
+    "title": "Applied AI Engineer (LLM Tutor Platform)",
+    "company": "LernGraph GmbH",
+    "location": "Munich, Germany",
+    "url": "https://careers.lerngraph.de/jobs/applied-ai-engineer-llm-tutor",
+    "source": "mock",
+    "description": "We are building a Socratic tutoring product used by over 10 million students across DACH. You will own the LLM layer end-to-end: prompt engineering, retrieval-augmented generation over curriculum content, evaluation harnesses, and safety filters. Stack: Python 3.11, LangGraph, LangChain, Anthropic Claude and Gemini, Pinecone, Postgres with pgvector, FastAPI, and AWS (Bedrock, Lambda, ECS). You will run experiments on prompt variants using our eval framework, build agent workflows that plan multi-step explanations, and collaborate with ML engineers on fine-tuning small models for classification. Strong Python skills and production LLM experience required. German is a plus, English is the working language. Hybrid, 3 days in Munich HQ."
+  },
+  {
+    "title": "Senior Applied AI Engineer — Student Learning Agents",
+    "company": "Edyssey Labs",
+    "location": "Munich, Germany",
+    "url": "https://edysseylabs.careers/roles/senior-applied-ai",
+    "source": "mock",
+    "description": "Edyssey Labs is hiring a Senior Applied AI Engineer to ship agentic learning experiences to high-school students across Europe. You will design and maintain production multi-agent pipelines (retrieval, tool-use, planner-executor patterns), implement structured output parsing with Pydantic, and build observability on top of OpenTelemetry and Langfuse. Tech: Python, LangGraph, Anthropic SDK, OpenAI, Weaviate, Docker, Kubernetes, GitHub Actions. We value engineers who can reason about latency, cost, and eval quality together. 5+ years backend, 2+ years with LLM applications in production, ownership mindset. English working language, permit/visa support available."
+  },
+  {
+    "title": "Machine Learning Engineer — Generative Learning Content",
+    "company": "StudyForge AI",
+    "location": "Munich / Remote, Germany",
+    "url": "https://studyforge.ai/careers/ml-engineer-gen-content",
+    "source": "mock",
+    "description": "Join StudyForge as an ML Engineer building the generative layer that creates practice questions, flashcards, and explanations at scale. You will design prompt templates, evaluation sets, and RAG pipelines over textbooks. We use Python, LangChain, FAISS, HuggingFace Transformers, sentence-transformers, FastAPI, Postgres, Redis, and GCP Vertex AI. You will own eval quality (BLEU, semantic-similarity, human-rated), drive iteration loops, and collaborate with product on UX. Must have shipped at least one LLM-powered product. Bonus: German curriculum knowledge, Kubernetes, Terraform."
+  },
+  {
+    "title": "LLM Platform Engineer (Edtech)",
+    "company": "Tutorly Europe",
+    "location": "Munich, Germany",
+    "url": "https://tutorly.eu/jobs/llm-platform-engineer",
+    "source": "mock",
+    "description": "Tutorly is building the platform layer behind our AI tutor app. We need an LLM Platform Engineer to own model routing, prompt management, evaluation pipelines, cost guardrails, and red-teaming. You will design a provider-agnostic abstraction over Anthropic, OpenAI, and open-source models served on vLLM. Stack: Python, FastAPI, LangGraph, Pydantic, Postgres, Redis, Kafka, Kubernetes on GCP. Strong software engineering fundamentals are non-negotiable — type hints, testing, clean abstractions. Experience with production LLM systems is required; research-only backgrounds will not be a match for this role."
+  },
+  {
+    "title": "AI Engineer — Knowledge Graph for Learning",
+    "company": "NoetisAI",
+    "location": "Munich, Germany",
+    "url": "https://noetis.ai/careers/ai-engineer-knowledge-graph",
+    "source": "mock",
+    "description": "NoetisAI maps educational concepts into a dynamic knowledge graph that powers personalized learning paths. We're hiring an AI Engineer to blend graph-based reasoning with LLM retrieval. You will build ingestion pipelines that parse curriculum PDFs, extract concept relations using Claude, and populate a Neo4j graph. Then design GraphRAG patterns on top for tutoring flows. Stack: Python, LangGraph, Anthropic Claude, Neo4j, FAISS, FastAPI, Docker. Expect to run ablations comparing vector-only, graph-only, and hybrid retrieval. Published work in RAG or graph ML is a plus, but shipping matters more."
+  },
+  {
+    "title": "AI Software Engineer — Robo-Advisor",
+    "company": "Auxilium Wealth",
+    "location": "Munich, Germany",
+    "url": "https://auxiliumwealth.com/careers/ai-software-engineer",
+    "source": "mock",
+    "description": "Auxilium is a regulated digital wealth manager serving 500k European clients. We're hiring an AI Software Engineer to integrate LLM capabilities into portfolio advice and client messaging. You will build an agentic pipeline that drafts compliant client communications, classifies inbound emails, and summarizes quarterly portfolio performance. Must navigate BaFin compliance and data-residency constraints; we run everything inside our EU cloud. Stack: Python 3.11, FastAPI, LangGraph, Anthropic Claude via private endpoint, Postgres, Kafka, Terraform on AWS Frankfurt. Strong software engineering background required; fintech experience a plus but not required."
+  },
+  {
+    "title": "Senior Backend Engineer with GenAI Focus",
+    "company": "Polygon Capital Technologies",
+    "location": "Munich, Germany",
+    "url": "https://polygon-cap.tech/jobs/senior-backend-genai",
+    "source": "mock",
+    "description": "Polygon Capital Technologies builds the engineering backbone behind a fast-growing neobroker. We're hiring a Senior Backend Engineer with strong interest in GenAI. You will design microservices handling millions of trading events daily and integrate LLM-powered features: transaction categorization, document parsing (KYC), and customer-support copilots. Stack: Python, FastAPI, gRPC, Postgres, Kafka, Redis, Kubernetes on AWS. On the AI side: Anthropic Claude, LangChain, RAG over internal knowledge base. We value engineers who can reason about idempotency, distributed tracing, and blast radius. 6+ years Python backend required."
+  },
+  {
+    "title": "AI Platform Engineer — Risk and Compliance",
+    "company": "Fidentia Digital",
+    "location": "Munich, Germany",
+    "url": "https://fidentia.digital/jobs/ai-platform-engineer-risk",
+    "source": "mock",
+    "description": "Fidentia Digital is modernizing risk and compliance for European asset managers. We need an AI Platform Engineer to build a regulated LLM platform: model gateways, structured output validation, PII redaction, audit logs, and prompt lineage. Stack: Python, FastAPI, LangGraph, Anthropic SDK, OpenAI, Postgres with pgvector, ClickHouse, Kubernetes, GitOps with ArgoCD. You will work side-by-side with risk analysts translating regulatory checklists into deterministic agent flows. This is a senior IC role with room to shape architecture end-to-end."
+  },
+  {
+    "title": "Machine Learning Engineer — Personalization",
+    "company": "Scalarta Finance",
+    "location": "Munich, Germany",
+    "url": "https://scalarta.finance/careers/ml-personalization",
+    "source": "mock",
+    "description": "Scalarta Finance is hiring an ML Engineer to own personalization for our retail investing app. You'll combine classical ML (LightGBM, embedding-based recommenders) with LLM-powered content summarization. Design feature pipelines, embedding stores, retrieval services, and A/B experimentation. Stack: Python, PyTorch, HuggingFace, FAISS, Feast, FastAPI, Airflow, BigQuery on GCP. Bonus: experience with causal inference for uplift modeling, Langfuse or Weights & Biases for experiment tracking. You need solid software engineering fundamentals — we ship daily."
+  },
+  {
+    "title": "Staff AI Engineer — Fintech Copilot",
+    "company": "Meridian Financial AI",
+    "location": "Munich, Germany",
+    "url": "https://meridianfinancial.ai/jobs/staff-ai-engineer-copilot",
+    "source": "mock",
+    "description": "Meridian Financial AI is hiring a Staff AI Engineer to lead the architecture of our internal investing copilot used by portfolio managers across five European countries. You will drive technical strategy across agent orchestration, tool-use, retrieval, evaluation, and human-in-the-loop workflows. Expect deep collaboration with product, risk, and compliance. Stack: Python, LangGraph, Anthropic Claude, pgvector, Kafka, Kubernetes, AWS. 8+ years software engineering, 3+ years LLM applications, proven record of shipping. Ability to present architecture to non-technical stakeholders is essential."
+  },
+  {
+    "title": "Applied AI Engineer — Autonomous Driving Perception",
+    "company": "Kraftwerk Automotive Systems",
+    "location": "Munich, Germany",
+    "url": "https://kraftwerk-automotive.de/careers/applied-ai-perception",
+    "source": "mock",
+    "description": "Kraftwerk Automotive Systems partners with OEMs across Europe on ADAS and autonomous driving. We're hiring an Applied AI Engineer for our perception team. You will develop and validate deep-learning models for object detection, semantic segmentation, and sensor fusion, and integrate LLM-based tooling into our data-annotation and scenario-generation pipelines. Stack: Python, PyTorch, ONNX, ROS 2, CUDA, C++ for embedded, Azure ML. Strong computer-vision background and comfort reading research papers required. Automotive (AUTOSAR, ISO 26262 awareness) is a plus."
+  },
+  {
+    "title": "ML Engineer — In-Vehicle Assistant",
+    "company": "Voltvek Engineering",
+    "location": "Munich / Ingolstadt, Germany",
+    "url": "https://voltvek.de/jobs/ml-engineer-in-vehicle",
+    "source": "mock",
+    "description": "Voltvek is hiring an ML Engineer to build the next-generation in-vehicle voice assistant for a premium German OEM. You will design on-device LLM inference (quantized Llama 3, Mistral), hybrid cloud/edge routing, and domain-specific RAG over owner manuals and diagnostic data. Stack: Python, C++, PyTorch, TensorRT, HuggingFace, FastAPI, AUTOSAR Adaptive, Azure. We need engineers comfortable across the ML-systems spectrum: model selection, quantization, optimization, automotive integration. German language helpful for documentation, English working language."
+  },
+  {
+    "title": "Senior AI Engineer — Automotive Simulation",
+    "company": "Bayerntec Consulting",
+    "location": "Munich, Germany",
+    "url": "https://bayerntec.de/careers/senior-ai-engineer-sim",
+    "source": "mock",
+    "description": "Bayerntec Consulting delivers engineering services to Europe's automotive Tier-1 and OEM community. We are expanding our AI practice and hiring a Senior AI Engineer to lead simulation-data generation using generative models. You'll design diffusion and LLM-based pipelines for rare-scenario synthesis, connect them to CARLA and proprietary simulators, and integrate into CI validation loops. Stack: Python, PyTorch, diffusers, LangChain, CARLA, Unreal, Docker, Azure. Consulting-grade communication expected — you'll present designs to client engineers weekly. 5+ years building ML systems required."
+  },
+  {
+    "title": "AI Engineer — Vehicle Software Platform",
+    "company": "Rheinmark Mobility",
+    "location": "Munich, Germany",
+    "url": "https://rheinmark-mobility.com/jobs/ai-engineer-vehicle-platform",
+    "source": "mock",
+    "description": "Rheinmark Mobility supports German OEMs in the transition to software-defined vehicles. We need an AI Engineer to integrate LLM and classical ML features into our SDV platform. Projects range from log-anomaly detection in CAN/SOMEIP traces, to natural-language diagnostic interfaces for technicians, to generative test-case expansion. Stack: Python, PyTorch, HuggingFace, FastAPI, AUTOSAR Adaptive, Vector CANoe integration, Docker, Azure. Automotive domain curiosity is a must. Consulting attitude welcomed: client-facing work expected."
+  },
+  {
+    "title": "Computer Vision Engineer — Driver Monitoring",
+    "company": "Ingolfex GmbH",
+    "location": "Munich, Germany",
+    "url": "https://ingolfex.com/careers/cv-engineer-driver-monitoring",
+    "source": "mock",
+    "description": "Ingolfex builds driver-monitoring and in-cabin sensing systems deployed in millions of European vehicles. We're hiring a Computer Vision Engineer to improve our gaze-estimation and drowsiness-detection stack. You will collect and curate datasets, train transformer-based vision models, optimize inference on embedded NPUs, and validate against ISO 21448 scenarios. Stack: Python, PyTorch, ONNX, TensorRT, C++, OpenCV, Qualcomm SNPE. ISO 26262 / ASPICE awareness a plus. This role is deeply technical; strong fundamentals in vision and optimization are required."
+  },
+  {
+    "title": "Senior Python Backend Engineer",
+    "company": "Isar Digital Services",
+    "location": "Munich, Germany",
+    "url": "https://isardigital.de/jobs/senior-python-backend",
+    "source": "mock",
+    "description": "Isar Digital Services is hiring a Senior Python Backend Engineer to lead development of our B2B integration platform. You'll design microservices, event-driven pipelines, and public APIs used by dozens of enterprise customers. We care about code quality: type hints, tests, clean architecture, and explicit error boundaries. Stack: Python 3.11, FastAPI, SQLAlchemy, Postgres, Redis, Kafka, Docker, Kubernetes on AWS. Exposure to LLM integrations is welcome but not required. 6+ years Python backend required, team-lead experience a plus."
+  },
+  {
+    "title": "Backend Engineer (Python) — Observability Platform",
+    "company": "Telemetron Systems",
+    "location": "Munich, Germany",
+    "url": "https://telemetron.systems/careers/backend-engineer-python",
+    "source": "mock",
+    "description": "Telemetron Systems is building a modern observability platform for European SaaS companies. We're hiring a Backend Engineer to grow our data-ingestion and query layers. You'll design scalable ingestion services, time-series storage abstractions, and APIs used by thousands of engineers. Stack: Python, FastAPI, Go (minority), ClickHouse, Kafka, Kubernetes, Terraform on AWS. Bonus: OpenTelemetry internals, eBPF, or experience on any distributed systems platform at scale. Strong software engineering background required — senior IC role."
+  },
+  {
+    "title": "Python Backend Developer — B2B SaaS",
+    "company": "Cortina Labs",
+    "location": "Munich, Germany",
+    "url": "https://cortinalabs.com/jobs/python-backend-developer",
+    "source": "mock",
+    "description": "Cortina Labs builds a collaborative data platform for mid-market European companies. We need a Python Backend Developer to own key services in our monolith-to-services transition. You will design APIs, refactor legacy code, and add thoughtful test coverage. Stack: Python, FastAPI, SQLAlchemy, Postgres, Redis, Celery, Docker, Kubernetes on GCP. We're looking for engineers who prefer clarity over cleverness. 3-6 years Python backend, appetite for system design, and strong English communication. German optional."
+  },
+  {
+    "title": "GenAI Consultant — Enterprise Automation",
+    "company": "Axonfield Advisory",
+    "location": "Munich, Germany",
+    "url": "https://axonfield.consulting/jobs/genai-consultant",
+    "source": "mock",
+    "description": "Axonfield Advisory helps DAX-listed companies adopt GenAI responsibly. We're hiring a GenAI Consultant to lead client engagements across manufacturing, insurance, and mobility. You'll assess processes, prototype LLM-powered automations, run evaluations, and hand off to client engineering teams with production-grade code. Stack: Python, LangGraph, Anthropic Claude, OpenAI, Azure OpenAI, FAISS or pgvector, FastAPI. Client-facing communication is essential — workshops, exec presentations, and roadmap design. 4+ years engineering, 2+ years LLM work, willingness to travel within Germany."
+  },
+  {
+    "title": "Senior GenAI Consultant — Process Intelligence",
+    "company": "Momentek Partners",
+    "location": "Munich, Germany",
+    "url": "https://momentek.partners/careers/senior-genai-consultant",
+    "source": "mock",
+    "description": "Momentek Partners is expanding our GenAI practice targeting regulated European industries. We need a Senior GenAI Consultant to architect multi-agent systems for document-heavy workflows: claims intake, contract review, regulatory reporting. You will lead discovery, design agent graphs with LangGraph, implement structured output pipelines, and coach client engineers. Stack: Python, LangGraph, Anthropic Claude, Azure OpenAI, Postgres with pgvector, FastAPI, Azure. Strong consulting instincts required: scoping, stakeholder alignment, evidence-based recommendations. 6+ years engineering, demonstrated GenAI delivery track record."
+  }
+]

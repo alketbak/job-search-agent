@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  jobradar:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jobradar:latest
+    container_name: jobradar
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Defaults that make sense in a container; override via .env if needed.
+      DATABASE_URL: sqlite:///data/jobradar.db
+      MCP_MEMORY_FILE: /app/data/memory.json
+      OUTPUT_DIR: /app/output
+      CV_PATH: /app/cv/cv.txt
+      FAISS_INDEX_PATH: /app/cv/cv.faiss
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist your CV, the FAISS index, the SQLite DB, and digests.
+      - ./cv:/app/cv
+      - ./output:/app/output
+      - ./data:/app/data
+
+  # ---- OPTIONAL: Neo4j for a production-grade graph backend ----
+  # Uncomment this service block and swap memory/mcp_client.py for a Neo4j
+  # client to upgrade from the in-process MCP memory server to a real graph
+  # database. You'll also need a Neo4j driver in requirements.txt.
+  #
+  # neo4j:
+  #   image: neo4j:5-community
+  #   container_name: jobradar-neo4j
+  #   environment:
+  #     NEO4J_AUTH: neo4j/changeme
+  #   ports:
+  #     - "7474:7474"
+  #     - "7687:7687"
+  #   volumes:
+  #     - neo4j_data:/data
+  #
+  # volumes:
+  #   neo4j_data:
