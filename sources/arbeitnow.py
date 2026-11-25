@@ -1,4 +1,4 @@
-"""Arbeitnow job board — free, no auth, Germany-focused.
+"""Arbeitnow job board - free, no auth, Germany-focused.
 
 Docs: https://www.arbeitnow.com/api/job-board-api
 The API returns results in `data`, with `meta.current_page` / `meta.last_page`
@@ -70,7 +70,7 @@ class ArbeitnowSource(JobSource):
                 "location": item.get("location", "") or "",
                 "description": item.get("description", "") or "",
                 "url": item.get("url", "") or "",
-                # Pass-through extras — downstream may or may not use these.
+                # Pass-through extras - downstream may or may not use these.
                 "tags": item.get("tags") or [],
                 "remote": bool(item.get("remote")),
             }

@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 def _safe_name(prefix: str, value: str) -> str:
     """MCP entity names should be stable and safe. Strip whitespace, prefix by type."""
     cleaned = re.sub(r"\s+", " ", (value or "").strip())
-    # Avoid empty names — use a placeholder rather than crashing.
+    # Avoid empty names - use a placeholder rather than crashing.
     cleaned = cleaned or "unknown"
     return f"{prefix}::{cleaned}"
 
@@ -64,7 +64,7 @@ async def store_job_run(
         }
     ]
     relations: list[dict[str, Any]] = []
-    # Dedupe entity creations within this batch — the MCP memory server rejects
+    # Dedupe entity creations within this batch - the MCP memory server rejects
     # duplicates by name; we also want fewer round-trips.
     seen: set[str] = {run_name}
 
@@ -88,8 +88,8 @@ async def store_job_run(
             f"Company: {company}",
             f"Source: {job.get('source', 'unknown')}",
             f"URL: {job.get('url', '')}",
-            f"Raw RAG score: {job.get('raw_score', 0):.3f}",
-            f"Claude score: {job.get('claude_score', 0)}/10",
+            f"Raw similarity score: {job.get('raw_score', 0):.3f}",
+            f"Score (deterministic, 0-10): {job.get('claude_score', 0)}/10",
         ]
         if reasoning := job.get("claude_reasoning"):
             role_obs.append(f"Reasoning: {reasoning}")
@@ -115,7 +115,7 @@ async def store_job_run(
                 {"from": role_name, "to": loc_name, "relationType": "LOCATED_IN"}
             )
 
-        # Skills the CV matches — these light up as strengths in the graph.
+        # Skills the CV matches - these light up as strengths in the graph.
         for skill in job.get("highlights") or []:
             s_name = _safe_name("Skill", skill)
             _add_entity(s_name, "Skill", [f"Name: {skill}", "Direction: highlight"])
@@ -123,7 +123,7 @@ async def store_job_run(
                 {"from": role_name, "to": s_name, "relationType": "MATCHES"}
             )
 
-        # Skill gaps — what to study next. These become SkillGap entities too.
+        # Skill gaps - what to study next. These become SkillGap entities too.
         for skill in job.get("skill_gaps") or []:
             gap_name = _safe_name("SkillGap", skill)
             _add_entity(

@@ -1,0 +1,5 @@
+Add your CV here.
+
+Copy this file to cv/cv.txt and replace this text with your own CV in plain
+text (cv/cv.txt is gitignored, so it never gets committed). Or skip the file
+and upload a PDF or text CV from the dashboard ("My CV") or via POST /cv.

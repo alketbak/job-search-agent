@@ -1,4 +1,4 @@
-"""Source registry — decides which job sources to enable based on config.
+"""Source registry - decides which job sources to enable based on config.
 
 We keep this separate from `__init__.py` so the decision logic is easy to
 unit-test: call `get_enabled_sources()` with different settings and assert
@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 def get_enabled_sources() -> list[JobSource]:
     """Return the list of JobSource instances to query on this run."""
     if settings.use_mock_data:
-        log.info("USE_MOCK_DATA=true — using MockSource only")
+        log.info("USE_MOCK_DATA=true - using MockSource only")
         return [MockSource()]
 
     sources: list[JobSource] = [ArbeitnowSource(), BundesagenturSource()]
@@ -30,7 +30,7 @@ def get_enabled_sources() -> list[JobSource]:
     if adzuna.enabled():
         sources.append(adzuna)
     else:
-        log.info("Adzuna credentials not set — skipping")
+        log.info("Adzuna credentials not set - skipping")
 
     log.info("Enabled sources: %s", [s.name for s in sources])
     return sources

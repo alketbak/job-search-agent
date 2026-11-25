@@ -1,4 +1,4 @@
-"""Tests for job sources — mock + arbeitnow (httpx mocked)."""
+"""Tests for job sources - mock + arbeitnow (httpx mocked)."""
 
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ async def test_mock_source_respects_limit() -> None:
 async def test_mock_source_soft_filters_location() -> None:
     src = MockSource()
     # An obviously non-matching filter should still return *something* (fallback),
-    # per our soft-filter policy — the demo must never produce zero jobs.
+    # per our soft-filter policy - the demo must never produce zero jobs.
     jobs = await src.fetch(query="banana", location="narnia", limit=5)
     assert len(jobs) > 0
 

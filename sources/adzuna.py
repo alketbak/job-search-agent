@@ -1,8 +1,8 @@
-"""Adzuna job search — free tier with app_id + app_key.
+"""Adzuna job search - free tier with app_id + app_key.
 
 Docs: https://developer.adzuna.com/docs/search
 Endpoint pattern: /v1/api/jobs/{country}/search/{page}
-We target Germany (de) per the spec.
+We target Germany (de).
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ class AdzunaSource(JobSource):
 
     async def fetch(self, query: str, location: str, limit: int) -> list[dict[str, Any]]:
         if not self.enabled():
-            log.info("Adzuna skipped — credentials not set")
+            log.info("Adzuna skipped - credentials not set")
             return []
 
         params = {

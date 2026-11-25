@@ -1,4 +1,4 @@
-"""Bundesagentur für Arbeit — official German government jobs API.
+"""Bundesagentur für Arbeit - official German government jobs API.
 
 Endpoint: https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4/jobs
 

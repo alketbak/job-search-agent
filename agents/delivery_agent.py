@@ -1,4 +1,4 @@
-"""Delivery agent — builds a markdown digest and optionally emails it.
+"""Delivery agent - builds a markdown digest and optionally emails it.
 
 Always writes the digest to `output/digest_{date}.md` regardless of email
 configuration, so demo runs produce a visible artefact even without SMTP.
@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from config import settings
-from agents.analyst_agent import generate_motivation
+from scoring.explainer import generate_motivation
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +52,8 @@ async def build_digest(
 ) -> tuple[str, str]:
     """Build (subject, markdown_body). Falls back gracefully without LLM."""
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
-    # Sort by Claude score, then raw RAG score.
+    # Sort by the deterministic score (claude_score mirrors score_final*10,
+    # see agents/orchestrator.py::_derive_legacy_fields), then raw similarity.
     ranked = sorted(
         analyzed_jobs,
         key=lambda j: (j.get("claude_score") or 0, j.get("raw_score") or 0),
@@ -61,7 +62,7 @@ async def build_digest(
     top5 = ranked[:5]
     subject = f"JobRadar Daily Digest — {date_str} — {len(ranked)} matches"
 
-    motivation = await generate_motivation(top5)
+    motivation = await generate_motivation(top5, pipeline_run_id=run_id)
     gaps = _aggregate_skill_gaps(ranked)
 
     table_rows: list[list[str]] = [["Title", "Company", "Score", "Apply?"]]
@@ -87,8 +88,8 @@ async def build_digest(
 
 - **Run ID:** `{run_id}`
 - **Scraped:** {scraped_count} jobs
-- **Scored (RAG):** {scored_count} jobs
-- **Analyzed (Claude):** {len(analyzed_jobs)} jobs
+- **Scored (deterministic):** {scored_count} jobs
+- **Explained (LLM, top N only):** {sum(1 for j in analyzed_jobs if j.get("explanation"))} jobs
 - **Top 5 recommended below**
 
 ## Top 5 Matches
@@ -130,10 +131,10 @@ def _render_details(jobs: list[dict[str, Any]]) -> str:
 async def _send_email(subject: str, body: str) -> bool:
     """Send via SMTP. Returns True on success. Never raises."""
     if not settings.email_recipient:
-        log.info("EMAIL_RECIPIENT not set — skipping SMTP delivery")
+        log.info("EMAIL_RECIPIENT not set - skipping SMTP delivery")
         return False
     if not (settings.email_sender and settings.email_password):
-        log.warning("EMAIL_SENDER or EMAIL_PASSWORD not set — skipping SMTP delivery")
+        log.warning("EMAIL_SENDER or EMAIL_PASSWORD not set - skipping SMTP delivery")
         return False
 
     msg = EmailMessage()

@@ -1,4 +1,4 @@
-"""Mock job source — reads from data/mock_jobs.json.
+"""Mock job source - reads from data/mock_jobs.json.
 
 Used when USE_MOCK_DATA=true, and also as a fallback for test runs.
 """
@@ -29,13 +29,13 @@ class MockSource(JobSource):
         try:
             data = await asyncio.to_thread(self._read_file)
         except FileNotFoundError:
-            log.warning("Mock file not found at %s — returning empty list", self.path)
+            log.warning("Mock file not found at %s - returning empty list", self.path)
             return []
         except json.JSONDecodeError as e:
             log.error("Mock file %s is malformed JSON: %s", self.path, e)
             return []
 
-        # Soft filter — if the caller passed a query/location, prefer matches,
+        # Soft filter - if the caller passed a query/location, prefer matches,
         # but don't filter so aggressively that the demo returns nothing.
         q = (query or "").lower().strip()
         loc = (location or "").lower().strip()

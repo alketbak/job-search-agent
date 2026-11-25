@@ -1,21 +1,23 @@
-"""FastAPI integration tests — spin up the app with TestClient."""
+"""FastAPI integration tests - spin up the app with TestClient."""
 
 from __future__ import annotations
 
 import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from api.router import router
 from database import init_db
-from fastapi import FastAPI
+from tests.auth_helpers import override_auth
 
 
 @pytest.fixture(scope="module")
 def client() -> TestClient:
     init_db()
-    # Minimal app — we don't boot the scheduler or MCP server in tests.
+    # Minimal app - we don't boot the scheduler or MCP server in tests.
     app = FastAPI()
     app.include_router(router)
+    override_auth(app)
     with TestClient(app) as c:
         yield c
 

@@ -205,13 +205,266 @@
     }
     .node-group.dim { opacity: 0.18; }
     .node-group.hit circle { stroke: #fff; stroke-width: 2px; }
+
+    /* ---- tabs + Kanban + detail panel ---- */
+    .tabs { display: flex; gap: 4px; }
+    .tab-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .tab-btn[data-active="true"] {
+      background: var(--panel-2);
+      color: var(--text);
+      border-color: var(--accent);
+    }
+    .view { display: none; }
+    .view[data-active="true"] { display: block; }
+
+    #view-applications {
+      height: calc(100vh - 48px);
+      overflow: auto;
+      padding: 18px;
+    }
+    /* All status columns share the viewport width - no horizontal scroll.
+       On narrow screens the columns wrap onto extra rows instead. */
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(9, minmax(0, 1fr));
+      gap: 8px;
+      align-items: start;
+      min-height: 60vh;
+    }
+    @media (max-width: 1200px) {
+      .kanban { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+    }
+    .kanban-col {
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px;
+      overflow-wrap: anywhere;
+    }
+    .kanban-col h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin: 0 0 10px 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .kanban-col h3 .count {
+      background: var(--panel-2);
+      border-radius: 999px;
+      padding: 1px 8px;
+      color: var(--text);
+    }
+    .kcard {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .kcard:hover { border-color: var(--accent); }
+    .kcard .kc-title { font-weight: 600; margin-bottom: 2px; }
+    .kcard .kc-company { color: var(--muted); margin-bottom: 6px; }
+    .kcard .kc-score {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: rgba(110, 168, 255, 0.15);
+      color: var(--accent);
+    }
+    .kanban-empty { color: var(--muted); font-size: 12px; padding: 8px 2px; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 8, 20, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .overlay[data-open="true"] { display: flex; }
+    .detail-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      width: min(680px, 92vw);
+      max-height: 88vh;
+      overflow: auto;
+      padding: 22px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .detail-panel h2 { margin: 0 0 2px; font-size: 18px; }
+    .detail-panel .d-company { color: var(--muted); margin-bottom: 14px; }
+    .detail-panel .d-close {
+      float: right;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .score-cell {
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 11px;
+    }
+    .score-cell .sc-label { color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; font-size: 10px; }
+    .score-cell .sc-value { font-size: 16px; font-weight: 600; margin-top: 2px; }
+    .score-final { background: rgba(110, 168, 255, 0.15); border: 1px solid var(--accent); }
+    .blocker-list, .req-list { margin: 6px 0 14px; padding-left: 18px; font-size: 12px; }
+    .blocker-list li { color: var(--gap); margin: 3px 0; }
+    .req-list li { margin: 3px 0; }
+    .req-status {
+      display: inline-block;
+      font-size: 10px;
+      text-transform: uppercase;
+      padding: 0 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+    .req-status.met { background: rgba(64, 211, 156, 0.2); color: var(--skill); }
+    .req-status.partial { background: rgba(255, 224, 102, 0.2); color: var(--run); }
+    .req-status.missing { background: rgba(255, 107, 138, 0.2); color: var(--gap); }
+    .req-status.unverifiable { background: rgba(138, 147, 184, 0.2); color: var(--muted); }
+    .explanation {
+      background: var(--panel-2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .field-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+    .field-row label { font-size: 11px; color: var(--muted); min-width: 90px; }
+    .field-row select, .field-row input, .field-row textarea {
+      flex: 1;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: inherit;
+    }
+    .sub-section { margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 12px; }
+    .sub-section h4 { margin: 0 0 8px; font-size: 12px; color: var(--muted); text-transform: uppercase; }
+    .sub-item { background: var(--panel-2); border-radius: 8px; padding: 8px 10px; font-size: 12px; margin-bottom: 6px; }
+    .mini-form { display: flex; gap: 6px; margin-top: 6px; }
+    .mini-form input {
+      flex: 1; min-width: 0; background: var(--panel-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 12px;
+    }
+    .mini-form input::placeholder { color: var(--muted); }
+    .mini-form input:focus { outline: none; border-color: var(--accent); }
+    .mini-form button, .d-save {
+      background: var(--accent);
+      color: #0b1020;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* ------- auth: sign-in overlay + header session controls ------- */
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .session { display: none; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+    .session[data-signed-in="true"] { display: flex; }
+    .link-btn {
+      background: none; border: 1px solid var(--border); color: var(--text);
+      border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer;
+    }
+    .link-btn:hover { border-color: var(--accent); }
+    .auth-overlay { z-index: 60; }
+    .auth-panel {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      width: min(360px, calc(100vw - 32px)); padding: 24px;
+    }
+    .auth-panel h2 { margin: 0 0 4px; font-size: 18px; }
+    .auth-panel p.hint { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
+    .auth-panel label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+    .auth-panel input {
+      width: 100%; background: var(--panel-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 14px;
+    }
+    .auth-panel input:focus { outline: none; border-color: var(--accent); }
+    .auth-actions { display: flex; gap: 8px; margin-top: 18px; }
+    .auth-actions button { flex: 1; padding: 8px 12px; font-size: 13px; }
+    .auth-primary {
+      background: var(--accent); color: #0b1020; border: none; border-radius: 6px;
+      font-weight: 600; cursor: pointer;
+    }
+    .auth-primary:disabled { opacity: 0.6; cursor: progress; }
+    .auth-error { color: #ff6b8a; font-size: 12px; min-height: 16px; margin-top: 10px; }
+
+    /* Add-job form reuses the auth panel's field styles, just wider. */
+    .kanban-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .kanban-toolbar button { padding: 7px 14px; font-size: 13px; }
+    .cv-status { margin-right: auto; font-size: 12px; color: var(--muted); }
+    .cv-status.warn { color: var(--run); }
+    .cv-status.bad { color: #ff6b8a; }
+    .toolbar-msg { font-size: 12px; color: var(--muted); }
+    .kcard .kc-score.pending { background: var(--panel); color: var(--muted); }
+    .add-job-panel .consent { display: flex; gap: 8px; align-items: flex-start; color: var(--text); }
+    .add-job-panel .consent input { width: auto; margin-top: 2px; }
+    .score-action { margin: 4px 0 14px; display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--muted); }
+    .score-action button { padding: 6px 12px; font-size: 12px; }
+    .auth-panel.add-job-panel { width: min(520px, calc(100vw - 32px)); max-height: 90vh; overflow: auto; }
+    .add-job-panel select, .add-job-panel textarea {
+      width: 100%; background: var(--panel-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px;
+      font-size: 14px; font-family: inherit;
+    }
+    .add-job-panel textarea { resize: vertical; min-height: 60px; }
+    .add-job-panel select:focus, .add-job-panel textarea:focus { outline: none; border-color: var(--accent); }
+    .add-job-panel .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .add-job-secondary {
+      background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+      border-radius: 6px; cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1><span class="dot"></span>JobRadar <span class="subtitle">— Knowledge Graph</span></h1>
-    <span id="last-refresh" class="subtitle">loading…</span>
+    <nav class="tabs" id="tabs">
+      <button class="tab-btn" data-tab="graph" data-active="true">Graph</button>
+      <button class="tab-btn" data-tab="applications" data-active="false">Applications</button>
+    </nav>
+    <div class="header-right">
+      <span id="last-refresh" class="subtitle">loading…</span>
+      <div class="session" id="session" data-signed-in="false">
+        <span id="session-email"></span>
+        <button class="link-btn" id="logout-btn" type="button">Sign out</button>
+      </div>
+    </div>
   </header>
+  <div id="view-graph" class="view" data-active="true">
   <main>
     <div class="controls">
       <label for="search">Search nodes</label>
@@ -230,6 +483,223 @@
       <p>Trigger a pipeline run: <br/><code>POST /run</code></p>
     </div>
   </main>
+  </div>
+
+  <div id="view-applications" class="view" data-active="false">
+    <div class="kanban-toolbar">
+      <span id="cv-status" class="cv-status"></span>
+      <span id="toolbar-msg" class="toolbar-msg" role="status"></span>
+      <button class="add-job-secondary" id="cv-open" type="button">My CV</button>
+      <button class="auth-primary" id="add-job-open" type="button">+ Add job</button>
+    </div>
+    <div id="kanban" class="kanban"></div>
+  </div>
+
+  <div id="add-job-overlay" class="overlay" data-open="false">
+    <form class="auth-panel add-job-panel" id="add-job-form" novalidate>
+      <h2>Add a job</h2>
+      <p class="hint">Track a job you found yourself. Only you can see it. It gets scored against your CV.</p>
+      <div class="row">
+        <div>
+          <label for="aj-title">Job title *</label>
+          <input id="aj-title" maxlength="512" required />
+        </div>
+        <div>
+          <label for="aj-company">Company *</label>
+          <input id="aj-company" maxlength="256" required />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="aj-location">Location</label>
+          <input id="aj-location" maxlength="256" />
+        </div>
+        <div>
+          <label for="aj-status">Status</label>
+          <select id="aj-status"></select>
+        </div>
+      </div>
+      <label for="aj-url">Link to the job ad</label>
+      <input id="aj-url" type="url" maxlength="1024" placeholder="https://" />
+      <label for="aj-description">Description</label>
+      <textarea id="aj-description" rows="4"></textarea>
+      <label for="aj-notes">Notes</label>
+      <textarea id="aj-notes" rows="2"></textarea>
+      <div class="auth-error" id="aj-error" role="alert"></div>
+      <div class="auth-actions">
+        <button class="add-job-secondary" id="aj-cancel" type="button">Cancel</button>
+        <button class="auth-primary" id="aj-submit" type="submit">Add job</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="cv-overlay" class="overlay" data-open="false">
+    <form class="auth-panel add-job-panel" id="cv-form" novalidate>
+      <h2>My CV</h2>
+      <p class="hint" id="cv-form-status"></p>
+      <label for="cv-file">Upload a new CV (PDF or .txt)</label>
+      <input id="cv-file" type="file" accept=".pdf,.txt,application/pdf,text/plain" required />
+      <label class="consent">
+        <input id="cv-consent" type="checkbox" />
+        <span>I agree that my CV is stored and processed (by Claude) to score jobs for me.</span>
+      </label>
+      <div class="auth-error" id="cv-error" role="alert"></div>
+      <div class="auth-actions">
+        <button class="add-job-secondary" id="cv-cancel" type="button">Close</button>
+        <button class="auth-primary" id="cv-submit" type="submit">Upload</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="detail-overlay" class="overlay" data-open="false">
+    <div class="detail-panel" id="detail-panel"></div>
+  </div>
+
+  <div id="auth-overlay" class="overlay auth-overlay" data-open="false">
+    <form class="auth-panel" id="auth-form" novalidate>
+      <h2>Sign in to JobRadar</h2>
+      <p class="hint">Your matches and applications are private to your account.</p>
+      <label for="auth-email">Email</label>
+      <input id="auth-email" type="email" autocomplete="username" required />
+      <label for="auth-password">Password</label>
+      <input id="auth-password" type="password" autocomplete="current-password" required />
+      <div class="auth-error" id="auth-error" role="alert"></div>
+      <div class="auth-actions">
+        <button class="auth-primary" id="auth-login" type="submit">Sign in</button>
+        <button class="link-btn" id="auth-register" type="button">Create account</button>
+      </div>
+    </form>
+  </div>
+
+<script>
+// ------- auth: JWT session + authenticated fetch -------
+// Every API route except /health requires a bearer token (fastapi-users,
+// BearerTransport). The token lives in sessionStorage: it survives a page
+// reload but not closing the tab, which limits how long a token leaked via
+// XSS stays usable compared to localStorage.
+window.JobRadarAuth = (() => {
+  const KEY = "jobradar.token";
+  const overlay = document.getElementById("auth-overlay");
+  const form = document.getElementById("auth-form");
+  const emailEl = document.getElementById("auth-email");
+  const passwordEl = document.getElementById("auth-password");
+  const errorEl = document.getElementById("auth-error");
+  const loginBtn = document.getElementById("auth-login");
+  const registerBtn = document.getElementById("auth-register");
+  const sessionEl = document.getElementById("session");
+  const sessionEmailEl = document.getElementById("session-email");
+
+  function getToken() {
+    try { return sessionStorage.getItem(KEY); } catch { return null; }
+  }
+  function setToken(t) {
+    try {
+      if (t) sessionStorage.setItem(KEY, t); else sessionStorage.removeItem(KEY);
+    } catch { /* storage unavailable: token only lives for this page load */ }
+    memoryToken = t;
+  }
+  let memoryToken = getToken();
+
+  class AuthRequiredError extends Error {
+    constructor() { super("Sign in required"); this.name = "AuthRequiredError"; }
+  }
+
+  function showLogin(message) {
+    sessionEl.dataset.signedIn = "false";
+    errorEl.textContent = message || "";
+    overlay.dataset.open = "true";
+    setTimeout(() => emailEl.focus(), 0);
+  }
+
+  async function apiFetch(url, opts = {}) {
+    if (!memoryToken) { showLogin(); throw new AuthRequiredError(); }
+    const headers = new Headers(opts.headers || {});
+    headers.set("Authorization", "Bearer " + memoryToken);
+    const res = await fetch(url, { cache: "no-store", ...opts, headers });
+    if (res.status === 401) {
+      setToken(null);
+      showLogin("Your session has expired. Please sign in again.");
+      throw new AuthRequiredError();
+    }
+    return res;
+  }
+
+  async function errorDetail(res) {
+    try {
+      const body = await res.json();
+      const d = body.detail;
+      if (d === "LOGIN_BAD_CREDENTIALS") return "Wrong email or password.";
+      if (d === "REGISTER_USER_ALREADY_EXISTS") return "An account with this email already exists.";
+      if (d && typeof d === "object" && d.code === "REGISTER_INVALID_PASSWORD") return d.reason;
+      if (Array.isArray(d)) return "Please enter a valid email and password.";
+      if (typeof d === "string") return d;
+    } catch { /* non-JSON error body */ }
+    return "Request failed (HTTP " + res.status + ").";
+  }
+
+  async function login(email, password) {
+    const res = await fetch("/auth/jwt/login", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ username: email, password }),
+    });
+    if (!res.ok) throw new Error(await errorDetail(res));
+    const { access_token } = await res.json();
+    setToken(access_token);
+  }
+
+  async function register(email, password) {
+    const res = await fetch("/auth/register", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) throw new Error(await errorDetail(res));
+  }
+
+  async function refreshSession() {
+    try {
+      const res = await apiFetch("/users/me");
+      if (!res.ok) return;
+      const me = await res.json();
+      sessionEmailEl.textContent = me.email;
+      sessionEl.dataset.signedIn = "true";
+    } catch { /* AuthRequiredError already showed the sign-in form */ }
+  }
+
+  async function submit(action) {
+    const email = emailEl.value.trim();
+    const password = passwordEl.value;
+    if (!email || !password) { errorEl.textContent = "Enter your email and password."; return; }
+    loginBtn.disabled = registerBtn.disabled = true;
+    errorEl.textContent = "";
+    try {
+      if (action === "register") await register(email, password);
+      await login(email, password);
+      passwordEl.value = "";
+      overlay.dataset.open = "false";
+      await refreshSession();
+      window.dispatchEvent(new Event("jobradar:signed-in"));
+    } catch (e) {
+      errorEl.textContent = e.message;
+    } finally {
+      loginBtn.disabled = registerBtn.disabled = false;
+    }
+  }
+
+  form.addEventListener("submit", (e) => { e.preventDefault(); submit("login"); });
+  registerBtn.addEventListener("click", () => submit("register"));
+  document.getElementById("logout-btn").addEventListener("click", () => {
+    setToken(null);
+    window.dispatchEvent(new Event("jobradar:signed-out"));
+    showLogin();
+  });
+
+  if (memoryToken) refreshSession(); else showLogin();
+
+  return { apiFetch, isSignedIn: () => Boolean(memoryToken), AuthRequiredError };
+})();
+</script>
 
 <script>
 (() => {
@@ -271,7 +741,7 @@
 
   async function loadGraph() {
     try {
-      const res = await fetch("/graph", { cache: "no-store" });
+      const res = await JobRadarAuth.apiFetch("/graph");
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
       currentData = data;
@@ -282,6 +752,10 @@
       document.getElementById("last-refresh").textContent =
         "updated " + new Date().toLocaleTimeString();
     } catch (e) {
+      if (e instanceof JobRadarAuth.AuthRequiredError) {
+        document.getElementById("stats").textContent = "Sign in to load your graph.";
+        return;
+      }
       console.error("Failed to load /graph:", e);
       document.getElementById("stats").innerHTML =
         `<span style="color:#ff6b8a">Failed to load graph: ${e.message}</span>`;
@@ -511,8 +985,491 @@
   });
 
   // ------- boot + refresh -------
-  loadGraph();
-  setInterval(loadGraph, REFRESH_MS);
+  if (JobRadarAuth.isSignedIn()) loadGraph();
+  else {
+    document.getElementById("stats").textContent = "Sign in to load your graph.";
+    document.getElementById("last-refresh").textContent = "";
+  }
+  setInterval(() => { if (JobRadarAuth.isSignedIn()) loadGraph(); }, REFRESH_MS);
+  window.addEventListener("jobradar:signed-in", loadGraph);
+  window.addEventListener("jobradar:signed-out", () => {
+    renderGraph({ nodes: [], links: [] });
+    document.getElementById("stats").textContent = "Sign in to load your graph.";
+  });
+})();
+</script>
+
+<script>
+// ------- tabs + Applications Kanban + detail panel -------
+// Separate IIFE from the graph code above - distinct concern, no shared state.
+(() => {
+  const STATUSES = [
+    "interested", "saved", "applied", "screening", "interview",
+    "technical_assessment", "offer", "rejected", "withdrawn",
+  ];
+  const STATUS_LABELS = {
+    interested: "Interested", saved: "Saved", applied: "Applied",
+    screening: "Screening", interview: "Interview",
+    technical_assessment: "Technical Assessment", offer: "Offer",
+    rejected: "Rejected", withdrawn: "Withdrawn",
+  };
+
+  // ------- tabs -------
+  document.getElementById("tabs").addEventListener("click", (e) => {
+    const btn = e.target.closest(".tab-btn");
+    if (!btn) return;
+    const tab = btn.dataset.tab;
+    document.querySelectorAll(".tab-btn").forEach((b) => (b.dataset.active = String(b.dataset.tab === tab)));
+    document.getElementById("view-graph").dataset.active = String(tab === "graph");
+    document.getElementById("view-applications").dataset.active = String(tab === "applications");
+    if (tab === "applications") { loadKanban(); refreshCvStatus(); }
+  });
+
+  window.addEventListener("jobradar:signed-in", () => {
+    if (document.getElementById("view-applications").dataset.active === "true") { loadKanban(); refreshCvStatus(); }
+  });
+  window.addEventListener("jobradar:signed-out", () => {
+    document.getElementById("kanban").innerHTML = "";
+    document.getElementById("detail-overlay").dataset.open = "false";
+    document.getElementById("add-job-overlay").dataset.open = "false";
+    document.getElementById("cv-overlay").dataset.open = "false";
+    document.getElementById("cv-status").textContent = "";
+    document.getElementById("toolbar-msg").textContent = "";
+    scoringJobs.clear();
+  });
+
+  // ------- scoring status (hand-added jobs are scored in the background) -------
+  const scoringJobs = new Set();  // job ids with a scoring run in flight
+  function setToolbarMsg(text) { document.getElementById("toolbar-msg").textContent = text || ""; }
+
+  // Explains a POST /jobs or POST /jobs/{id}/score result; starts polling if queued.
+  function handleScoring(result, jobId, onDone) {
+    if (result.scoring_status === "queued") {
+      setToolbarMsg("Scoring against your CV…");
+      watchScoring(result.scoring_run_id, jobId, onDone);
+    } else if (result.scoring_status === "no_cv") {
+      setToolbarMsg("Saved without a score: upload your CV under “My CV” first.");
+    } else if (result.scoring_status === "quota_exceeded") {
+      setToolbarMsg("Saved without a score: today's AI limit is used up. Score it tomorrow from the job's details.");
+    }
+  }
+
+  async function watchScoring(runId, jobId, onDone) {
+    scoringJobs.add(jobId);
+    loadKanban();
+    let status = "pending";
+    for (let i = 0; i < 60 && (status === "pending" || status === "running"); i++) {
+      await new Promise((r) => setTimeout(r, 3000));
+      try {
+        const res = await JobRadarAuth.apiFetch(`/runs/${runId}`);
+        if (res.ok) status = (await res.json()).status;
+      } catch (e) {
+        if (e instanceof JobRadarAuth.AuthRequiredError) return;
+      }
+    }
+    scoringJobs.delete(jobId);
+    setToolbarMsg(
+      status === "success" ? "Scoring finished."
+        : status === "failed" ? "Scoring failed. Try again from the job's details."
+        : "Scoring is taking longer than usual. Refresh later to see the score."
+    );
+    loadKanban();
+    if (onDone) onDone(status);
+  }
+
+  // ------- add a job manually -------
+  const addJobOverlay = document.getElementById("add-job-overlay");
+  const addJobForm = document.getElementById("add-job-form");
+  const addJobError = document.getElementById("aj-error");
+  const addJobSubmit = document.getElementById("aj-submit");
+  document.getElementById("aj-status").innerHTML = STATUSES
+    .map((s) => `<option value="${s}">${STATUS_LABELS[s]}</option>`).join("");
+
+  function closeAddJob() { addJobOverlay.dataset.open = "false"; }
+
+  document.getElementById("add-job-open").addEventListener("click", () => {
+    addJobForm.reset();
+    addJobError.textContent = "";
+    addJobOverlay.dataset.open = "true";
+    document.getElementById("aj-title").focus();
+  });
+  document.getElementById("aj-cancel").addEventListener("click", closeAddJob);
+  addJobOverlay.addEventListener("click", (e) => { if (e.target === addJobOverlay) closeAddJob(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && addJobOverlay.dataset.open === "true") closeAddJob();
+  });
+
+  addJobForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const val = (id) => document.getElementById(id).value.trim();
+    const payload = {
+      title: val("aj-title"),
+      company: val("aj-company"),
+      location: val("aj-location") || null,
+      url: val("aj-url") || null,
+      description: val("aj-description") || null,
+      notes: val("aj-notes") || null,
+      status: document.getElementById("aj-status").value,
+    };
+    if (!payload.title || !payload.company) {
+      addJobError.textContent = "Job title and company are required.";
+      return;
+    }
+    addJobError.textContent = "";
+    addJobSubmit.disabled = true;
+    try {
+      const res = await JobRadarAuth.apiFetch("/jobs", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        let msg = "Could not add the job (HTTP " + res.status + ").";
+        try {
+          const body = await res.json();
+          if (typeof body.detail === "string") msg = body.detail;
+          else if (Array.isArray(body.detail)) msg = "Please check the fields: one of them is too long or invalid.";
+        } catch (_) { /* keep the generic message */ }
+        if (res.status === 429) msg = "Too many jobs added in a short time. Wait a minute and try again.";
+        addJobError.textContent = msg;
+        return;
+      }
+      closeAddJob();
+      const created = await res.json();
+      loadKanban();
+      handleScoring(created, created.job_id);
+    } catch (err) {
+      if (!(err instanceof JobRadarAuth.AuthRequiredError)) addJobError.textContent = "Network error: " + err.message;
+    } finally {
+      addJobSubmit.disabled = false;
+    }
+  });
+
+  function escapeHTML(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // ------- my CV -------
+  const cvOverlay = document.getElementById("cv-overlay");
+  const cvForm = document.getElementById("cv-form");
+  const cvError = document.getElementById("cv-error");
+  const cvSubmit = document.getElementById("cv-submit");
+  let cvPollTimer = null;
+
+  function describeCv(cv) {
+    if (!cv) return { text: "No CV uploaded: jobs can't be scored yet.", cls: "warn" };
+    // The API sends naive UTC timestamps; mark them as UTC before formatting.
+    const when = cv.uploaded_at ? new Date(cv.uploaded_at.endsWith("Z") ? cv.uploaded_at : cv.uploaded_at + "Z").toLocaleDateString() : "";
+    if (cv.extraction_status === "pending") return { text: "CV is being processed…", cls: "", pending: true };
+    if (cv.extraction_status === "failed") {
+      return { text: `Processing your latest CV failed (${cv.extraction_failure_reason || "unknown reason"}). Try uploading again.`, cls: "bad" };
+    }
+    return { text: `CV ready${when ? " (uploaded " + when + ")" : ""}.`, cls: "" };
+  }
+
+  async function refreshCvStatus() {
+    clearTimeout(cvPollTimer);
+    const statusEl = document.getElementById("cv-status");
+    try {
+      const res = await JobRadarAuth.apiFetch("/me/cv");
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const d = describeCv(await res.json());
+      statusEl.textContent = d.text;
+      statusEl.className = "cv-status " + d.cls;
+      document.getElementById("cv-form-status").textContent = d.text;
+      if (d.pending) cvPollTimer = setTimeout(refreshCvStatus, 4000);
+    } catch (e) {
+      if (!(e instanceof JobRadarAuth.AuthRequiredError)) statusEl.textContent = "Couldn't load CV status.";
+    }
+  }
+
+  function closeCv() { cvOverlay.dataset.open = "false"; }
+  document.getElementById("cv-open").addEventListener("click", () => {
+    cvForm.reset();
+    cvError.textContent = "";
+    cvOverlay.dataset.open = "true";
+    refreshCvStatus();
+  });
+  document.getElementById("cv-cancel").addEventListener("click", closeCv);
+  cvOverlay.addEventListener("click", (e) => { if (e.target === cvOverlay) closeCv(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && cvOverlay.dataset.open === "true") closeCv();
+  });
+
+  cvForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const file = document.getElementById("cv-file").files[0];
+    if (!file) { cvError.textContent = "Choose a PDF or .txt file."; return; }
+    if (!document.getElementById("cv-consent").checked) {
+      cvError.textContent = "Please tick the consent box to upload.";
+      return;
+    }
+    const body = new FormData();
+    body.append("file", file);
+    body.append("consent", "true");
+    cvError.textContent = "";
+    cvSubmit.disabled = true;
+    try {
+      const res = await JobRadarAuth.apiFetch("/cv", { method: "POST", body });
+      if (!res.ok) {
+        let msg = "Upload failed (HTTP " + res.status + ").";
+        try {
+          const b = await res.json();
+          if (typeof b.detail === "string") msg = b.detail;
+        } catch (_) { /* keep the generic message */ }
+        cvError.textContent = msg;
+        return;
+      }
+      closeCv();
+      setToolbarMsg("CV uploaded. Once it's processed, use “Score against my CV” on a job to rescore it.");
+      refreshCvStatus();
+    } catch (err) {
+      if (!(err instanceof JobRadarAuth.AuthRequiredError)) cvError.textContent = "Network error: " + err.message;
+    } finally {
+      cvSubmit.disabled = false;
+    }
+  });
+
+  async function loadKanban() {
+    const host = document.getElementById("kanban");
+    try {
+      const res = await JobRadarAuth.apiFetch("/applications/kanban");
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      host.innerHTML = STATUSES.map((status) => renderColumn(status, data.columns[status] || [])).join("");
+      host.querySelectorAll(".kcard").forEach((el) => {
+        el.addEventListener("click", () => openDetail(el.dataset.appId));
+      });
+    } catch (e) {
+      if (e instanceof JobRadarAuth.AuthRequiredError) {
+        host.innerHTML = `<div class="kanban-empty">Sign in to see your applications.</div>`;
+        return;
+      }
+      host.innerHTML = `<div class="kanban-empty">Failed to load applications: ${escapeHTML(e.message)}</div>`;
+    }
+  }
+
+  function renderColumn(status, cards) {
+    const body = cards.length
+      ? cards.map(renderCard).join("")
+      : `<div class="kanban-empty">No applications</div>`;
+    return `<div class="kanban-col">
+      <h3>${STATUS_LABELS[status]} <span class="count">${cards.length}</span></h3>
+      ${body}
+    </div>`;
+  }
+
+  function renderCard(card) {
+    const score = card.score_final != null
+      ? `<span class="kc-score">score ${card.score_final.toFixed(2)}</span>`
+      : scoringJobs.has(card.job_id) ? `<span class="kc-score pending">scoring…</span>` : "";
+    return `<div class="kcard" data-app-id="${card.application_id}">
+      <div class="kc-title">${escapeHTML(card.job_title)}</div>
+      <div class="kc-company">${escapeHTML(card.job_company)}</div>
+      ${score}
+    </div>`;
+  }
+
+  // ------- detail panel -------
+  const overlay = document.getElementById("detail-overlay");
+  const panel = document.getElementById("detail-panel");
+
+  async function openDetail(applicationId) {
+    overlay.dataset.open = "true";
+    panel.innerHTML = "Loading…";
+    try {
+      const res = await JobRadarAuth.apiFetch(`/applications/${applicationId}`);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const app = await res.json();
+      panel.dataset.appId = app.id;
+      panel.innerHTML = renderDetail(app);
+      wireDetail(app);
+    } catch (e) {
+      panel.innerHTML = `<button class="d-close" data-close>Close</button><p>Failed to load: ${escapeHTML(e.message)}</p>`;
+      panel.querySelector("[data-close]").addEventListener("click", closeDetail);
+    }
+  }
+
+  function closeDetail() {
+    overlay.dataset.open = "false";
+    panel.dataset.appId = "";
+    panel.innerHTML = "";
+  }
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) closeDetail();
+  });
+
+  function renderScoreGrid(mr) {
+    if (!mr) return `<p style="color:var(--muted);font-size:12px">No score computed yet for this job.</p>`;
+    const cells = [
+      ["Technical skills", mr.score_technical_skills],
+      ["Experience", mr.score_experience],
+      ["Responsibilities", mr.score_responsibilities],
+      ["Seniority", mr.score_seniority],
+      ["Location/Language", mr.score_location_language],
+      ["Education", mr.score_education],
+    ];
+    const cellsHTML = cells
+      .map(([label, v]) => `<div class="score-cell"><div class="sc-label">${label}</div><div class="sc-value">${v != null ? v.toFixed(2) : "—"}</div></div>`)
+      .join("");
+    const finalHTML = `<div class="score-cell score-final"><div class="sc-label">Final score</div><div class="sc-value">${mr.score_final != null ? mr.score_final.toFixed(2) : "—"}</div></div>`;
+    const blockers = (mr.blockers || []).length
+      ? `<ul class="blocker-list">${mr.blockers.map((b) => `<li>⚠ ${escapeHTML(b)}</li>`).join("")}</ul>`
+      : "";
+    const reqs = (mr.requirement_classifications || [])
+      .map(
+        (c) =>
+          `<li><span class="req-status ${c.status}">${c.status}</span>${escapeHTML(c.text)}${c.evidence ? ` — <span style="color:var(--muted)">${escapeHTML(c.evidence)}</span>` : ""}</li>`
+      )
+      .join("");
+    const explanation = mr.llm_explanation
+      ? `<div class="explanation">${escapeHTML(mr.llm_explanation)}</div>`
+      : "";
+    return `<div class="score-grid">${finalHTML}${cellsHTML}</div>
+      ${blockers}
+      ${reqs ? `<ul class="req-list">${reqs}</ul>` : ""}
+      ${explanation}`;
+  }
+
+  function renderDetail(app) {
+    const job = app.job || {};
+    const interviewsHTML = (app.interviews || [])
+      .map(
+        (i) =>
+          `<div class="sub-item"><b>${escapeHTML(i.stage || "Interview")}</b>${i.interview_date ? " — " + escapeHTML(i.interview_date) : ""}${i.notes ? `<br>${escapeHTML(i.notes)}` : ""}</div>`
+      )
+      .join("") || `<div class="kanban-empty">No interviews yet</div>`;
+    const feedbackHTML = (app.feedback_entries || [])
+      .map(
+        (f) => `<div class="sub-item"><b>${escapeHTML(f.outcome || "Feedback")}</b>${f.notes ? `<br>${escapeHTML(f.notes)}` : ""}</div>`
+      )
+      .join("") || `<div class="kanban-empty">No feedback yet</div>`;
+
+    return `
+      <button class="d-close" data-close>Close</button>
+      <h2>${escapeHTML(job.title || "")}</h2>
+      <div class="d-company">${escapeHTML([job.company, job.location].filter(Boolean).join(" — "))}</div>
+
+      ${renderScoreGrid(app.match_result)}
+      <div class="score-action">
+        <button class="add-job-secondary" id="d-score" type="button">${app.match_result ? "Re-score" : "Score"} against my CV</button>
+        <span id="d-score-msg">${scoringJobs.has(app.job_id) ? "Scoring…" : ""}</span>
+      </div>
+
+      <div class="field-row">
+        <label>Status</label>
+        <select id="d-status">
+          ${STATUSES.map((s) => `<option value="${s}" ${s === app.status ? "selected" : ""}>${STATUS_LABELS[s]}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field-row">
+        <label>Salary offered</label>
+        <input id="d-salary" type="number" step="1" value="${app.salary_offered != null ? app.salary_offered : ""}" placeholder="e.g. 75000" />
+      </div>
+      <div class="field-row">
+        <label>Notes</label>
+        <textarea id="d-notes" rows="2">${escapeHTML(app.notes || "")}</textarea>
+      </div>
+      <button class="d-save" id="d-save">Save</button>
+      <span id="d-save-status" style="margin-left:8px;font-size:11px;color:var(--muted)"></span>
+
+      <div class="sub-section">
+        <h4>Interviews</h4>
+        ${interviewsHTML}
+        <div class="mini-form">
+          <input id="iv-stage" placeholder="stage (e.g. phone screen)" />
+          <input id="iv-notes" placeholder="notes" />
+          <button id="iv-add">Add</button>
+        </div>
+      </div>
+
+      <div class="sub-section">
+        <h4>Feedback</h4>
+        ${feedbackHTML}
+        <div class="mini-form">
+          <input id="fb-outcome" placeholder="outcome (e.g. rejected)" />
+          <input id="fb-notes" placeholder="notes" />
+          <button id="fb-add">Add</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function wireDetail(app) {
+    panel.querySelector("[data-close]").addEventListener("click", closeDetail);
+
+    panel.querySelector("#d-score").addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      const msg = panel.querySelector("#d-score-msg");
+      btn.disabled = true;
+      try {
+        const res = await JobRadarAuth.apiFetch(`/jobs/${app.job_id}/score`, { method: "POST" });
+        if (!res.ok) { msg.textContent = "Could not start scoring (HTTP " + res.status + ")."; return; }
+        const result = await res.json();
+        msg.textContent = {
+          queued: "Scoring… this takes about half a minute.",
+          no_cv: "Upload your CV under “My CV” first.",
+          quota_exceeded: "Today's AI limit is used up. Try again tomorrow.",
+        }[result.scoring_status] || "";
+        // Reopen this panel with the new score if it's still showing this application.
+        handleScoring(result, app.job_id, () => {
+          if (overlay.dataset.open === "true" && panel.dataset.appId === app.id) openDetail(app.id);
+        });
+      } catch (err) {
+        if (!(err instanceof JobRadarAuth.AuthRequiredError)) msg.textContent = "Network error: " + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    panel.querySelector("#d-save").addEventListener("click", async () => {
+      const status = panel.querySelector("#d-status").value;
+      const salaryRaw = panel.querySelector("#d-salary").value;
+      const notes = panel.querySelector("#d-notes").value;
+      const body = {
+        status,
+        notes,
+        salary_offered: salaryRaw === "" ? null : Number(salaryRaw),
+      };
+      const statusEl = panel.querySelector("#d-save-status");
+      statusEl.textContent = "Saving…";
+      try {
+        const res = await JobRadarAuth.apiFetch(`/applications/${app.id}`, {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        statusEl.textContent = "Saved.";
+        loadKanban();
+      } catch (e) {
+        statusEl.textContent = "Failed: " + e.message;
+      }
+    });
+
+    panel.querySelector("#iv-add").addEventListener("click", async () => {
+      const stage = panel.querySelector("#iv-stage").value;
+      const notes = panel.querySelector("#iv-notes").value;
+      await JobRadarAuth.apiFetch(`/applications/${app.id}/interviews`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stage, notes }),
+      });
+      openDetail(app.id);
+    });
+
+    panel.querySelector("#fb-add").addEventListener("click", async () => {
+      const outcome = panel.querySelector("#fb-outcome").value;
+      const notes = panel.querySelector("#fb-notes").value;
+      await JobRadarAuth.apiFetch(`/applications/${app.id}/feedback`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ outcome, notes }),
+      });
+      openDetail(app.id);
+    });
+  }
 })();
 </script>
 </body>

@@ -1,0 +1,28 @@
+target-version = "py311"
+line-length = 100
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # import sorting
+    "UP",  # pyupgrade
+    "B",   # bugbear (common bug patterns)
+]
+ignore = [
+    "E501",  # line length - handled loosely, not worth failing CI over
+    # FastAPI's documented pattern is `param: T = File(...)` / `= Depends(...)`
+    # - the call in the default IS the mechanism, not a bug. False positive
+    # for this framework, not something to refactor away.
+    "B008",
+    # JobStatus/ApplicationStatus inherit `(str, enum.Enum)`, not
+    # `enum.StrEnum` - two separate lifecycles, deliberately not kept in
+    # sync (see docs/DEVELOPMENT.md).
+    # StrEnum has subtly different __format__/auto() semantics; not worth
+    # the risk of touching two heavily-relied-upon enums for a style fix.
+    "UP042",
+]
+
+[lint.per-file-ignores]
+"alembic/versions/*" = ["E501"]
+"tests/*" = ["B"]

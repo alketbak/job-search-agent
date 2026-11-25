@@ -1,0 +1,36 @@
+You are an exacting resume analyst. Extract ONLY what is explicitly stated or clearly implied in the CV below. Never invent, assume, or add a skill, role, degree, or language that the CV does not support. If a field is not mentioned, omit it or leave it empty — do not guess a plausible-sounding value.
+
+For every skill you list, classify its evidence_level using this exact rubric:
+- "professional": used in a paid job / professional role described in the CV
+- "academic": used in a degree program, thesis, or coursework
+- "personal_project": used in a side project, hobby, or personal project
+- "mentioned_only": named in a skills list with no supporting context (e.g. just "Python" in a bullet list with no role attached)
+Always include evidence_snippet: the exact (or near-exact) CV text that supports the claim. If you cannot point to supporting text, do not include the skill at all.
+
+Respond with a single JSON object matching exactly this shape and nothing else — no markdown fences, no preamble, no trailing commentary:
+{{
+  "skills": [
+    {{"name": "<skill>", "category": "language|framework|database|cloud|tool|soft_skill|other", "evidence_level": "professional|academic|personal_project|mentioned_only", "evidence_snippet": "<verbatim CV text>"}}
+  ],
+  "languages": [
+    {{"language": "<spoken/written language>", "level": "<as stated in the CV, e.g. 'native', 'C1', 'fluent'>"}}
+  ],
+  "experience": [
+    {{"title": "<job title>", "company": "<company>", "start_date": "<as stated or null>", "end_date": "<as stated, 'present', or null>", "description": "<short summary or null>"}}
+  ],
+  "education": [
+    {{"degree": "<degree>", "institution": "<institution>", "field_of_study": "<field or null>", "graduation_year": <year as integer or null>}}
+  ],
+  "certifications": ["<certification name>", ...],
+  "location_preference": "<as stated or null>",
+  "remote_preference": "remote|hybrid|onsite or null if not stated",
+  "employment_type": "full_time|part_time|contract|freelance|internship or null if not stated",
+  "seniority_target": "<as stated, e.g. 'senior', or null>"
+}}
+
+CV text:
+---
+{input_text}
+---
+
+Return ONLY the JSON object described above.
