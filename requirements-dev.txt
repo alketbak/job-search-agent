@@ -1,0 +1,5 @@
+# Dev-only tooling — lint/type-check, not runtime
+# dependencies. Kept separate from requirements.txt so the production
+# Docker image doesn't carry them.
+ruff==0.17.5
+mypy==2.4.1

@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt -r requirements-dev.txt
+      - name: ruff
+        run: ruff check .
+      - name: mypy (core modules)
+        run: mypy config.py database scoring extraction
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: jobradar
+          POSTGRES_PASSWORD: jobradar
+          POSTGRES_DB: jobradar
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U jobradar -d jobradar"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      # Backs the LLM quota counter, arq and rate limiting. Redis-backed
+      # tests skip, not fail, without it - same pattern as the
+      # pgvector-only tests below.
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Deliberately empty, not a fake key - every LLM call must be mocked
+      # in tests. An empty key makes any accidentally-unmocked
+      # call fail fast via the existing `RuntimeError("ANTHROPIC_API_KEY is
+      # not set")` guard (extraction/llm_json.py, scoring/explainer.py)
+      # instead of ever reaching the network - a structural guarantee, not
+      # a convention anyone has to remember.
+      ANTHROPIC_API_KEY: ""
+      USE_MOCK_DATA: "true"
+      LOG_LEVEL: "WARNING"
+      AUTH_SECRET: "ci-test-secret-not-for-production-use"
+      REDIS_URL: "redis://localhost:6379/0"
+      # tests/conftest.py forces the main suite onto a temp SQLite file
+      # regardless of this - this is only for tests/pg_helpers.py's
+      # dedicated pgvector-backed cases (agents/retrieval.py,
+      # agents/dedup.py's embedding stage), which skip (not fail) without
+      # it reachable. Mirrors the one-time local setup documented in
+      # tests/pg_helpers.py's docstring.
+      TEST_DATABASE_URL: "postgresql+psycopg://jobradar:jobradar@localhost:5432/jobradar_test"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Create pgvector test database
+        run: |
+          PGPASSWORD=jobradar psql -h localhost -U jobradar -d jobradar -c "CREATE DATABASE jobradar_test;"
+          PGPASSWORD=jobradar psql -h localhost -U jobradar -d jobradar_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
+      - name: Apply migrations to the pgvector test database
+        env:
+          DATABASE_URL: "postgresql+psycopg://jobradar:jobradar@localhost:5432/jobradar_test"
+        run: alembic upgrade head
+      - name: pytest
+        run: pytest -q
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build production image
+        run: docker build -t jobradar:ci .

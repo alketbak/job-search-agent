@@ -4,7 +4,7 @@ Every concrete source must return a list of dicts with the standardized keys:
     title, company, location, description, url, source
 
 Additional keys are allowed and will be passed through, but these six are
-contract-level — downstream agents rely on them.
+contract-level - downstream agents rely on them.
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ REQUIRED_FIELDS = ("title", "company", "location", "description", "url", "source
 class JobSource(ABC):
     """Abstract base class for a job board / API integration."""
 
-    #: Short, lowercase identifier — used in log output and persisted to DB.
+    #: Short, lowercase identifier - used in log output and persisted to DB.
     name: str = "base"
 
     @abstractmethod
@@ -34,7 +34,7 @@ class JobSource(ABC):
             limit: Maximum number of results to return.
 
         Returns:
-            A list of normalized job dicts. Must never raise — on error return [].
+            A list of normalized job dicts. Must never raise - on error return [].
         """
 
     def validate(self, job: dict[str, Any]) -> dict[str, Any]:

@@ -1,29 +1,170 @@
-version: "3.9"
-
 services:
-  jobradar:
+  postgres:
+    # Official pgvector-enabled Postgres image - avoids hand-rolling the
+    # CREATE EXTENSION vector step into a custom image.
+    image: pgvector/pgvector:pg16
+    container_name: jobradar-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-jobradar}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jobradar}
+      POSTGRES_DB: ${POSTGRES_DB:-jobradar}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jobradar} -d ${POSTGRES_DB:-jobradar}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Backs the per-user LLM quota counter (observability/quota.py), arq's
+  # job queue (agents/worker.py) and rate limiting (api/rate_limit.py).
+  redis:
+    image: redis:7-alpine
+    container_name: jobradar-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot: applies pending Alembic migrations, then exits. `api` and
+  # `scheduler` both wait for this to succeed before starting.
+  migrate:
     build:
       context: .
       dockerfile: Dockerfile
     image: jobradar:latest
-    container_name: jobradar
+    container_name: jobradar-migrate
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-jobradar}:${POSTGRES_PASSWORD:-jobradar}@postgres:5432/${POSTGRES_DB:-jobradar}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["alembic", "upgrade", "head"]
+
+  # The scheduler is a separate process
+  # from the API - `api` and `scheduler` are the same image, split only by
+  # `command` and `RUN_SCHEDULER`.
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jobradar:latest
+    container_name: jobradar-api
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      # Defaults that make sense in a container; override via .env if needed.
-      DATABASE_URL: sqlite:///data/jobradar.db
+      # psycopg (v3) backs both the sync Alembic engine and the async runtime
+      # engine, so one driver covers both - see config.py.
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-jobradar}:${POSTGRES_PASSWORD:-jobradar}@postgres:5432/${POSTGRES_DB:-jobradar}
       MCP_MEMORY_FILE: /app/data/memory.json
       OUTPUT_DIR: /app/output
       CV_PATH: /app/cv/cv.txt
-      FAISS_INDEX_PATH: /app/cv/cv.faiss
+      RUN_SCHEDULER: "false"
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     ports:
       - "8000:8000"
     volumes:
-      # Persist your CV, the FAISS index, the SQLite DB, and digests.
+      # Persist your CV and digests. The DB itself lives in postgres.
       - ./cv:/app/cv
       - ./output:/app/output
       - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    command: ["python", "main.py"]
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jobradar:latest
+    container_name: jobradar-scheduler
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-jobradar}:${POSTGRES_PASSWORD:-jobradar}@postgres:5432/${POSTGRES_DB:-jobradar}
+      MCP_MEMORY_FILE: /app/data/memory.json
+      OUTPUT_DIR: /app/output
+      CV_PATH: /app/cv/cv.txt
+      SCHEDULER_HEARTBEAT_FILE: /app/data/scheduler_heartbeat
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - ./cv:/app/cv
+      - ./output:/app/output
+      - ./data:/app/data
+    healthcheck:
+      # Heartbeat written every 60s (scheduler_worker.py) - fails if the
+      # file is missing or older than 2 minutes, i.e. the event loop hung.
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import os,sys,time; p='/app/data/scheduler_heartbeat'; sys.exit(0 if os.path.exists(p) and time.time()-os.path.getmtime(p)<120 else 1)",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    command: ["python", "scheduler_worker.py"]
+
+  # arq background worker - CV extraction, per-user matching and
+  # single-job scoring (agents/worker.py), all enqueued by the `api` service instead of
+  # running inline on the request.
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jobradar:latest
+    container_name: jobradar-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-jobradar}:${POSTGRES_PASSWORD:-jobradar}@postgres:5432/${POSTGRES_DB:-jobradar}
+      REDIS_URL: redis://redis:6379/0
+      CV_PATH: /app/cv/cv.txt
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - ./cv:/app/cv
+      - ./data:/app/data
+    command: ["arq", "agents.worker.WorkerSettings"]
 
   # ---- OPTIONAL: Neo4j for a production-grade graph backend ----
   # Uncomment this service block and swap memory/mcp_client.py for a Neo4j
@@ -43,3 +184,7 @@ services:
   #
   # volumes:
   #   neo4j_data:
+
+volumes:
+  postgres_data:
+  redis_data:

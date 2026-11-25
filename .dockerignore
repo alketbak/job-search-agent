@@ -1,0 +1,20 @@
+# Keep secrets, personal data and local state out of the image
+# (the Dockerfile does `COPY . .`). `.*` covers .env, .git, caches and
+# editor/tool folders.
+.*
+cv/*
+!cv/cv.example.txt
+*.db
+data/memory.json
+data/scheduler_heartbeat
+output/
+evaluation/labels/
+evaluation/reports/
+venv/
+**/__pycache__/
+**/.DS_Store
+
+# Not needed at runtime
+**/*.md
+docs/
+tests/

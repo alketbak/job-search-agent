@@ -4,6 +4,11 @@
 *.pem
 *.key
 
+# --- personal data ---
+# Real CV content must never enter git history. cv/cv.example.txt (tracked)
+# is the placeholder; cv/cv.txt is your real CV and stays local-only.
+cv/cv.txt
+
 # --- python ---
 __pycache__/
 *.py[cod]
@@ -47,3 +52,7 @@ npm-debug.log
 
 # --- docker ---
 .dockerignore.local
+
+
+# --- runtime state ---
+data/scheduler_heartbeat

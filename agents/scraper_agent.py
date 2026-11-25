@@ -1,7 +1,7 @@
-"""Scraper agent — fan out to all enabled sources concurrently, dedupe.
+"""Scraper agent - fan out to all enabled sources concurrently, dedupe.
 
 Dedup key: (title + company), lowercased and whitespace-collapsed. This is
-intentionally simple — different boards post the same role with slightly
+intentionally simple - different boards post the same role with slightly
 different titles, and collapsing on just company can merge distinct roles.
 """
 
@@ -50,7 +50,7 @@ async def scrape(
     """Scrape all enabled sources concurrently. Returns deduped, truncated list."""
     sources = sources or get_enabled_sources()
     if not sources:
-        log.warning("No sources enabled — returning empty job list")
+        log.warning("No sources enabled - returning empty job list")
         return []
 
     per_source_limit = settings.max_jobs_per_source
@@ -73,7 +73,7 @@ async def scrape(
             all_jobs.append(job)
 
     log.info(
-        "Scraper breakdown: %s — %s unique jobs after dedup (cap %s)",
+        "Scraper breakdown: %s - %s unique jobs after dedup (cap %s)",
         dict(breakdown),
         len(all_jobs),
         MAX_TOTAL_JOBS,

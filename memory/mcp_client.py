@@ -16,13 +16,17 @@ import contextlib
 import json
 import logging
 import os
-import shutil
 import shlex
+import shutil
 from typing import Any
 
 from config import settings
 
 log = logging.getLogger(__name__)
+
+
+class MCPToolError(RuntimeError):
+    """The memory server ran a tool and reported that it failed."""
 
 
 class MCPMemoryClient:
@@ -38,7 +42,11 @@ class MCPMemoryClient:
 
     def __init__(self, command: str | None = None, memory_file: str | None = None) -> None:
         self._command = command or settings.mcp_memory_cmd
-        self._memory_file = memory_file or settings.mcp_memory_file
+        # Absolute on purpose: the memory server resolves a relative
+        # MEMORY_FILE_PATH against its own install directory (inside the npx
+        # cache), not our working directory - every write then failed with
+        # ENOENT and the graph stayed empty.
+        self._memory_file = os.path.abspath(memory_file or settings.mcp_memory_file)
         self._proc: asyncio.subprocess.Process | None = None
         self._req_id = 0
         self._lock = asyncio.Lock()
@@ -57,9 +65,9 @@ class MCPMemoryClient:
             return
         self._started = True
 
-        # Check prerequisites: we need `npx` on PATH (spec uses npx).
+        # The memory server is launched through `npx`, so it must be on PATH.
         if not self._has_npx():
-            log.warning("npx not on PATH — MCP memory server disabled, using in-memory fallback")
+            log.warning("npx not on PATH - MCP memory server disabled, using in-memory fallback")
             self._enable_fallback()
             return
 
@@ -81,7 +89,7 @@ class MCPMemoryClient:
             self._enable_fallback()
             return
 
-        # MCP handshake — send `initialize` then `notifications/initialized`.
+        # MCP handshake - send `initialize` then `notifications/initialized`.
         try:
             init_resp = await self._rpc(
                 "initialize",
@@ -130,7 +138,7 @@ class MCPMemoryClient:
         """Send a request and await the matching response.
 
         MCP uses line-delimited JSON, one message per line on stdin/stdout.
-        We serialize requests with a lock — stdin is a single stream.
+        We serialize requests with a lock - stdin is a single stream.
         """
         if not self._proc or not self._proc.stdin or not self._proc.stdout:
             raise RuntimeError("MCP subprocess not running")
@@ -160,7 +168,7 @@ class MCPMemoryClient:
                     if "error" in response:
                         raise RuntimeError(f"MCP error: {response['error']}")
                     return response.get("result")
-                # otherwise it's a notification — ignore
+                # otherwise it's a notification - ignore
 
     async def _notify(self, method: str, params: dict[str, Any]) -> None:
         """Fire-and-forget notification. No response expected."""
@@ -172,10 +180,18 @@ class MCPMemoryClient:
         await self._proc.stdin.drain()
 
     async def _call_tool(self, name: str, arguments: dict[str, Any]) -> Any:
-        """Call an MCP tool. Server returns a list of content blocks."""
+        """Call an MCP tool. Server returns a list of content blocks.
+
+        Raises `MCPToolError` when the server flags the result `isError` -
+        MCP reports tool failures (e.g. the memory file can't be written)
+        as a normal result, not a JSON-RPC error, so without this check a
+        failed write looks like a success."""
         result = await self._rpc("tools/call", {"name": name, "arguments": arguments})
-        # Most memory-server tools return JSON text in content[0].text.
         content = (result or {}).get("content") or []
+        if (result or {}).get("isError"):
+            texts = [c.get("text", "") for c in content if isinstance(c, dict)]
+            raise MCPToolError(f"MCP tool {name} failed: {' '.join(texts)[:300]}")
+        # Most memory-server tools return JSON text in content[0].text.
         if content and isinstance(content, list) and content[0].get("type") == "text":
             text = content[0].get("text", "")
             try:
@@ -295,7 +311,7 @@ async def get_memory_client() -> MCPMemoryClient:
 
 
 async def shutdown_memory_client() -> None:
-    """Stop the singleton — call on app shutdown."""
+    """Stop the singleton - call on app shutdown."""
     global _client
     if _client is not None:
         await _client.stop()
