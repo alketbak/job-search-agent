@@ -17,7 +17,9 @@ _TMP = tempfile.mkdtemp(prefix="jobradar_test_")
 os.environ.setdefault("USE_MOCK_DATA", "true")
 os.environ.setdefault("ANTHROPIC_API_KEY", "test-key")
 os.environ.setdefault("DATABASE_URL", f"sqlite:///{_TMP}/test.db")
-os.environ.setdefault("CV_PATH", "cv/cv.txt")
+# Always the tracked placeholder: tests must not depend on (or read) a
+# developer's local cv/cv.txt, which is gitignored and absent in CI.
+os.environ["CV_PATH"] = "cv/cv.example.txt"
 os.environ.setdefault("FAISS_INDEX_PATH", f"{_TMP}/cv.faiss")
 os.environ.setdefault("OUTPUT_DIR", f"{_TMP}/output")
 os.environ.setdefault("MCP_MEMORY_FILE", f"{_TMP}/memory.json")
